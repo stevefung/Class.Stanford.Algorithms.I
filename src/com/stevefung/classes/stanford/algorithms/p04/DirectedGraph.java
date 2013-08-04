@@ -71,16 +71,17 @@ public class DirectedGraph {
 	
 	private HashMap<String, Vertex> finishingTimes;
 	private HashMap<String, ArrayList<Vertex>> leaders;
+	HashMap<String, String> visited;
 	
 	public void calculateStronglyConnectedComponents() {
 		finishingTimes = new HashMap<String, Vertex>();
-		HashMap<String, String> visited = new HashMap<String, String>();
+		visited = new HashMap<String, String>();
 		
 		for (int i = vertexList.size(); i > 0; i--) {
 			if (!visited.containsKey(""+i)) {
 				Vertex v = vertexList.get(""+i);	// Hack for our input space
 				if (debug) System.err.println("Starting reverse pass at vertex " + v.getName());
-				reverseDFS(v, visited);
+				reverseDFS(v);
 			}
 		}
 		if (debug) System.err.println("Finishing times: " + finishingTimes.toString());
@@ -91,7 +92,7 @@ public class DirectedGraph {
 			Vertex v = finishingTimes.get(""+i);
 			if (!visited.containsKey(v.getName())) {
 				if (debug) System.err.println("Starting forward pass at finishing time " + i + " = vertex " + v.getName());
-				forwardDFS(v, visited, v.getName());
+				forwardDFS(v, v.getName());
 			}
 		}
 		
@@ -102,21 +103,32 @@ public class DirectedGraph {
 			sccSizes.add(pairs.getValue().size());
 		}
 		Collections.sort(sccSizes);
-		System.out.println("Sizes: " + sccSizes.toString());
+		System.err.println("Sizes: " + sccSizes.toString());
+		System.out.print("Top 5: [");
+		for (int i = 1; i <= 5; i++) {
+			if (sccSizes.size() >= i) {
+				System.out.print(sccSizes.get(sccSizes.size()-i));
+			} else {
+				System.out.print("0");
+			}
+			if (i < 5) {
+				System.out.print(",");
+			}
+		}
+		System.out.println("]");
 	}
 	
-	private void reverseDFS(Vertex v, HashMap<String, String> visited) {
+	private void reverseDFS(Vertex v) {
 		visited.put(v.getName(), null);
 		for (int i = 0; i < v.getInEdges().size(); i++) {
-			Vertex t = v.getInEdges().get(i).getTail();
-			if (!visited.containsKey(t.getName())) {
-				reverseDFS(t, visited);
+			if (!visited.containsKey(v.getInEdges().get(i).getTail().getName())) {
+				reverseDFS(v.getInEdges().get(i).getTail());
 			}
 		}
 		finishingTimes.put(""+(finishingTimes.size()+1), v);
 	}
 	
-	private void forwardDFS(Vertex v, HashMap<String, String> visited, String leaderName) {
+	private void forwardDFS(Vertex v, String leaderName) {
 		visited.put(v.getName(), v.getName());
 		if (debug) System.err.println("\tVisiting " + v.getName());
 		ArrayList<Vertex> list;
@@ -130,7 +142,7 @@ public class DirectedGraph {
 		for (int i = 0; i < v.getOutEdges().size(); i++) {
 			Vertex t = v.getOutEdges().get(i).getHead();
 			if (!visited.containsKey(t.getName())) {
-				forwardDFS(t, visited, leaderName);
+				forwardDFS(t, leaderName);
 			}
 		}
 	}
@@ -139,11 +151,10 @@ public class DirectedGraph {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+//		String testfile = "test/p04/test01.in";
 		String testfile = "test/p04/SCC.txt";
-		// NOTE: with graded break-test, due to stack overflows with eclipse, run command line with options:
+		// NOTE: with graded break-test, due to stack overflows with eclipse, run with options: -Xss4m -XX:+UseSerialGC
 		//			java -Xss8m -XX:+UseSerialGC com.stevefung.classes.stanford.algorithms.p04.DirectedGraph 2>err.log 1>out.log
-		// TODO: Optimize recursive calls to decrease stack size, to prevent overflow.  Or find an iterative approach with stacks
-//		String testfile = "test/p04/test02.in";
 		
 		long startTime = System.currentTimeMillis();
 		DirectedGraph dg = new DirectedGraph(testfile);
