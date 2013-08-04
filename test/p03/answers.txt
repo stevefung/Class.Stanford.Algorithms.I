@@ -1,0 +1,8 @@
+kargerMinCut: 17
+test01: 2
+test02: 2
+test03: 1
+test04: 1
+test05: 1
+test06: 3
+test07: 2
