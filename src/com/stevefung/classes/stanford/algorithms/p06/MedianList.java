@@ -37,8 +37,8 @@ public class MedianList {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-//		String testfile = "test/p06/Median.txt";
-		String testfile = "test/p06/p06_2-test04.in";
+		String testfile = "test/p06/Median.txt";
+//		String testfile = "test/p06/p06_2-test04.in";
 		
 		long startTime = System.currentTimeMillis();
 		
